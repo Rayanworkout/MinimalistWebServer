@@ -1,5 +1,7 @@
 # Minimalist Web Server
 
+_This project is currently under development._
+
 The Minimalist Web Server is a lightweight Python-based web server utilizing the socket module. While simplistic, it offers the functionality to serve static files. This project is intended for educational purposes rather than production use.
 
 ## Why ?

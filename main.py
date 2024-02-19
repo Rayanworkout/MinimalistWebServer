@@ -32,7 +32,7 @@ class MinimalistWebServer:
 
         # Listen for incoming connections
         self.server_socket.listen(10)  # Allow up to 10 queued connections
-        print(f"\nServer listening on http://{self.HOST}:{self.PORT} ...")
+        print(f"\nServer listening on http://{self.HOST}:{self.PORT}")
 
     def listen_forever(self) -> None:
         """
@@ -54,10 +54,15 @@ class MinimalistWebServer:
             while True:
                 client_socket, client_address = self.server_socket.accept()
                 print(f"Connection from {client_address}")
+
                 try:
                     # Receive data from the client
                     request = client_socket.recv(1024)  # size of the buffer in bytes
-                    print(f"Received request:\n{request.decode()}")
+
+                    # Parse the request
+                    stream = request.decode()
+                    parsed_stream = self.parse_http_request(stream)
+
                     # Send the response back to the client
                     client_socket.sendall(self.response.encode())
                 finally:
@@ -70,7 +75,36 @@ class MinimalistWebServer:
             # Gracefully shutting down server socket
             self.server_socket.close()
 
+    def parse_http_request(self, request: str) -> dict:
+        """
+        Method to parse the incoming request body
 
-server = MinimalistWebServer()
+        We extract individually method, path and then other parameters
+        """
 
-server.listen_forever()
+        try:
+            fields: list = request.split("\r\n")
+            # Extract method and path
+            method: str = fields[0].split(" ")[0].strip().lower()
+            path: str = fields[0].split(" ")[1].strip().lower()
+
+            fields = fields[1:]
+            output = {"method": method, "path": path}
+
+            for field in fields:
+                if field:
+                    key, value = field.split(":", 1)  # 1 is maxsplit
+                output[key.strip().lower()] = value.strip().lower()
+
+            return output
+
+        except Exception as e:
+            print(
+                f"An error occured: {e} Could not parse the following request:\n\n{request}"
+            )
+
+
+if __name__ == "__main__":
+    server = MinimalistWebServer()
+
+    server.listen_forever()
