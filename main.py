@@ -31,10 +31,24 @@ class MinimalistWebServer:
         self.server_socket.bind((self.HOST, self.PORT))
 
         # Listen for incoming connections
-        self.server_socket.listen()
-        print(f"Server listening on {self.HOST}:{self.PORT} ...")
+        self.server_socket.listen(10)  # Allow up to 10 queued connections
+        print(f"\nServer listening on http://{self.HOST}:{self.PORT} ...")
 
     def listen_forever(self) -> None:
+        """
+
+        Method to accept incoming connections and handle them.
+
+        We use an infinite loop with nested try except blocks.
+
+        On the last iteration of the loop, we close the connection with the client.
+
+        We receive 1024 bytes data streams, which can be set to more.
+
+        decode() and encode() are used to convert bytes to string and string to bytes, respectively.
+
+        """
+
         try:
             # Accept incoming connections
             while True:
@@ -42,7 +56,7 @@ class MinimalistWebServer:
                 print(f"Connection from {client_address}")
                 try:
                     # Receive data from the client
-                    request = client_socket.recv(1024)
+                    request = client_socket.recv(1024)  # size of the buffer in bytes
                     print(f"Received request:\n{request.decode()}")
                     # Send the response back to the client
                     client_socket.sendall(self.response.encode())
