@@ -1,5 +1,8 @@
 import socket
 
+# TODO map static files by folder
+# Handle POST Requests
+
 
 class MinimalistWebServer:
     def __init__(self, host="127.0.0.1", port=8080) -> None:
@@ -21,8 +24,25 @@ class MinimalistWebServer:
         self.HOST: str = host
         self.PORT: int = port
 
-        # Define the response
-        self.response = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Hello, world!</h1></body></html>"""
+        try:
+            # Read the content of the HTML file
+            with open("welcome.html", "r") as file:
+                self.html_content = file.read()
+
+            # Define the response with HTML content
+            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{self.html_content}"""
+
+        except (FileNotFoundError, PermissionError, IOError):
+            print(
+                "Error: The default HTML file does not exist, falling back to default response."
+            )
+            self.response = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Hello, world!</h1></body></html>"""
+
+        except Exception as e:
+            print(
+                f"An unexpected error occurred while opening default HTML file: {e}\nFalling back to default response."
+            )
+            self.response = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Hello, world!</h1></body></html>"""
 
         # Init the socket server
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
