@@ -1,7 +1,7 @@
 import socket
+import os
 
-# TODO map static files by folder
-# Handle POST Requests
+# TODO Handle POST Requests
 
 
 class MinimalistWebServer:
@@ -83,8 +83,20 @@ class MinimalistWebServer:
                     stream = request.decode()
                     parsed_stream = self.parse_http_request(stream)
 
-                    # Send the response back to the client
-                    client_socket.sendall(self.response.encode())
+                    print(parsed_stream["path"])
+
+                    if parsed_stream["path"].startswith("/static"):
+                        file_path = os.path.join(
+                            os.getcwd(), "static", parsed_stream["path"][8:]
+                        )
+                        self.serve_static_file(client_socket, file_path)
+                    else:
+                        # Send the response back to the client
+                        self.send_response(
+                            client_socket,
+                            "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
+                        )
+
                 finally:
                     # Close the client socket
                     client_socket.close()
@@ -94,6 +106,9 @@ class MinimalistWebServer:
             print("Server shutting down...")
             # Gracefully shutting down server socket
             self.server_socket.close()
+
+    def send_response(self, client_socket, response: str) -> None:
+        client_socket.sendall(response.encode())
 
     def parse_http_request(self, request: str) -> dict:
         """
@@ -123,8 +138,35 @@ class MinimalistWebServer:
                 f"An error occured: {e} Could not parse the following request:\n\n{request}"
             )
 
+    def get_content_type(self, file_path: str) -> str:
+        _, extension = os.path.splitext(file_path)
+        content_types = {
+            ".html": "text/html",
+            ".css": "text/css",
+            ".js": "application/javascript",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".gif": "image/gif",
+        }
+        return content_types.get(extension, "application/octet-stream")
+
+    def serve_static_file(self, client_socket, file_path: str) -> None:
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            with open(file_path, "rb") as file:
+                file_content = file.read()
+                response = (
+                    f"HTTP/1.1 200 OK\r\nContent-Length: {len(file_content)}\r\nContent-Type: {self.get_content_type(file_path)}\r\n\r\n".encode()
+                    + file_content
+                )
+                client_socket.sendall(response)
+        else:
+            self.send_response(
+                client_socket,
+                "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
+            )
+
 
 if __name__ == "__main__":
-    server = MinimalistWebServer()
+    server = MinimalistWebServer(port=5000)
 
     server.listen_forever()
