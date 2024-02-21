@@ -83,19 +83,31 @@ class MinimalistWebServer:
                     stream = request.decode()
                     parsed_stream = self.parse_http_request(stream)
 
-                    print(parsed_stream["path"])
+                    path = parsed_stream["path"]
+                    if path == "/":
+                        self.send_response(client_socket, self.response)
 
-                    if parsed_stream["path"].startswith("/static"):
-                        file_path = os.path.join(
-                            os.getcwd(), "static", parsed_stream["path"][8:]
-                        )
-                        self.serve_static_file(client_socket, file_path)
                     else:
-                        # Send the response back to the client
-                        self.send_response(
-                            client_socket,
-                            "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
+                        # separator = "\\" if os.name == "nt" else "/"
+                        # print(f"{separator = }")
+
+                        project_folder = (
+                            os.getcwd()
+                            + "\\"
+                            + "".join([x for x in path.split("/") if x])
                         )
+                        print(project_folder)
+
+                        
+                    # if path.startswith("/static"):
+                    #     file_path = os.path.join(os.getcwd(), path, "static")
+                    #     self.serve_static_file(client_socket, file_path)
+                    # else:
+                    #     # Send the response back to the client
+                    #     self.send_response(
+                    #         client_socket,
+                    #         "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
+                    #     )
 
                 finally:
                     # Close the client socket
