@@ -24,6 +24,8 @@ class MinimalistWebServer:
         self.HOST: str = host
         self.PORT: int = port
 
+        self.ok = """HTTP/1.1  200 OK\r\nContent-Type: application/json\r\n\r\n{"status": 200}"""
+
         try:
             # Read the content of the HTML file
             with open("welcome.html", "r") as file:
@@ -85,29 +87,31 @@ class MinimalistWebServer:
 
                     path = parsed_stream["path"]
                     if path == "/":
+                        # Default response with welcome.html
                         self.send_response(client_socket, self.response)
 
                     else:
-                        # separator = "\\" if os.name == "nt" else "/"
-                        # print(f"{separator = }")
+                        url_params = [param for param in path.split("/") if param]
 
-                        project_folder = (
-                            os.getcwd()
-                            + "\\"
-                            + "".join([x for x in path.split("/") if x])
+                        print(url_params)
+
+                        project_folder = os.getcwd() + os.sep + url_params[0] + os.sep
+
+                        # Serve index.html from project folder
+                        self.serve_static_file(
+                            client_socket, project_folder + "index.html"
                         )
-                        print(project_folder)
 
-                        
-                    # if path.startswith("/static"):
-                    #     file_path = os.path.join(os.getcwd(), path, "static")
-                    #     self.serve_static_file(client_socket, file_path)
-                    # else:
-                    #     # Send the response back to the client
-                    #     self.send_response(
-                    #         client_socket,
-                    #         "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
-                    #     )
+                        # Serving static file
+                        if path.startswith("/static"):
+                            file_path = os.path.join(os.getcwd(), path, "static")
+                            self.serve_static_file(client_socket, file_path)
+                        else:
+                            # Send the response back to the client
+                            self.send_response(
+                                client_socket,
+                                "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
+                            )
 
                 finally:
                     # Close the client socket
@@ -163,6 +167,8 @@ class MinimalistWebServer:
         return content_types.get(extension, "application/octet-stream")
 
     def serve_static_file(self, client_socket, file_path: str) -> None:
+
+        print(file_path)
         if os.path.exists(file_path) and os.path.isfile(file_path):
             with open(file_path, "rb") as file:
                 file_content = file.read()
