@@ -1,5 +1,6 @@
 import socket
 import os
+import mimetypes
 
 # TODO Handle POST Requests
 
@@ -75,7 +76,6 @@ class MinimalistWebServer:
             # Accept incoming connections
             while True:
                 client_socket, client_address = self.server_socket.accept()
-                print(f"Connection from {client_address}")
 
                 try:
                     # Receive data from the client
@@ -86,32 +86,37 @@ class MinimalistWebServer:
                     parsed_stream = self.parse_http_request(stream)
 
                     path = parsed_stream["path"]
+
+                    log = (
+                        f"{client_address[0]} {parsed_stream['method'].upper()} {path}"
+                    )
+                    # Log request infos
+                    print(log)
+
                     if path == "/":
                         # Default response with welcome.html
                         self.send_response(client_socket, self.response)
 
                     else:
-                        url_params = [param for param in path.split("/") if param]
 
-                        print(url_params)
+                        # Serve static file
 
-                        project_folder = os.getcwd() + os.sep + url_params[0] + os.sep
+                        url_to_path = path.replace("/", os.sep)[
+                            1:
+                        ]  # getting read of first /
+                        base_dir = os.path.dirname(__file__)
 
-                        # Serve index.html from project folder
-                        self.serve_static_file(
-                            client_socket, project_folder + "index.html"
-                        )
-
-                        # Serving static file
-                        if path.startswith("/static"):
-                            file_path = os.path.join(os.getcwd(), path, "static")
-                            self.serve_static_file(client_socket, file_path)
-                        else:
-                            # Send the response back to the client
-                            self.send_response(
-                                client_socket,
-                                "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
+                        if not path.startswith("/static"):
+                            # Serve index.html
+                            index_path = os.path.join(
+                                base_dir, url_to_path, "index.html"
                             )
+
+                            self.serve_static_file(client_socket, index_path)
+                        else:
+                            file_path = os.path.join(base_dir, url_to_path)
+                            print(file_path)
+                            self.serve_static_file(client_socket, file_path)
 
                 finally:
                     # Close the client socket
@@ -154,26 +159,18 @@ class MinimalistWebServer:
                 f"An error occured: {e} Could not parse the following request:\n\n{request}"
             )
 
-    def get_content_type(self, file_path: str) -> str:
-        _, extension = os.path.splitext(file_path)
-        content_types = {
-            ".html": "text/html",
-            ".css": "text/css",
-            ".js": "application/javascript",
-            ".png": "image/png",
-            ".jpg": "image/jpeg",
-            ".gif": "image/gif",
-        }
-        return content_types.get(extension, "application/octet-stream")
-
     def serve_static_file(self, client_socket, file_path: str) -> None:
 
-        print(file_path)
+        # Get the file's MIME type
+        content_type = mimetypes.guess_type(file_path)[0]
+
         if os.path.exists(file_path) and os.path.isfile(file_path):
             with open(file_path, "rb") as file:
                 file_content = file.read()
                 response = (
-                    f"HTTP/1.1 200 OK\r\nContent-Length: {len(file_content)}\r\nContent-Type: {self.get_content_type(file_path)}\r\n\r\n".encode()
+                    f"HTTP/1.1 200 OK\r\nContent-Length: {len(file_content)}\r\nContent-Type: {content_type}\r\n\r\n".encode(
+                        "utf-8"
+                    )
                     + file_content
                 )
                 client_socket.sendall(response)
