@@ -59,7 +59,7 @@ class BaseServer:
 
         # Listen for incoming connections
         self.server_socket.listen(10)  # Allow up to 10 queued connections
-        print(f"\nServer listening on http://{self.HOST}:{self.PORT}")
+        print(f"\n> Server listening on http://{self.HOST}:{self.PORT}")
 
     @staticmethod
     def parse_http_request(request: str) -> dict:

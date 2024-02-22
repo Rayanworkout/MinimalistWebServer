@@ -24,6 +24,8 @@ class MinimalistWebServer(BaseServer):
         """
 
         try:
+            base_dir = os.path.dirname(__file__)
+            project_folder = ""
             # Accept incoming connections
             while True:
                 client_socket, client_address = self.server_socket.accept()
@@ -49,24 +51,25 @@ class MinimalistWebServer(BaseServer):
                         client_socket.sendall(self.response.encode())
 
                     else:
-
                         # Serve static file
 
                         url_to_path = path.replace("/", self.sep)[
                             1:
-                        ]  # getting read of first /
-                        base_dir = os.path.dirname(__file__)
+                        ]  # getting rid of first /
 
                         if not path.startswith("/static"):
                             # Serve index.html
                             index_path = os.path.join(
                                 base_dir, url_to_path, "index.html"
                             )
+                            project_folder = url_to_path
 
                             self.serve_static_file(client_socket, index_path)
                         else:
-                            file_path = os.path.join(base_dir, url_to_path)
-                            print(file_path)
+                            # Add project folder to path
+                            file_path = os.path.join(
+                                base_dir, project_folder, url_to_path
+                            )
                             self.serve_static_file(client_socket, file_path)
 
                 finally:
