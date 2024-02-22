@@ -128,6 +128,11 @@ class BaseServer:
 
         if request_method == "GET":
             status_code = self.handle_get_request(path, client_socket, base_dir)
+        else:
+            status_code = 400
+            bad_request_response = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}"""
+
+            client_socket.sendall(bad_request_response.encode())
 
         readable_time = time.strftime("%T")
         log = f"{readable_time} | {request_method} {path} {status_code}"
