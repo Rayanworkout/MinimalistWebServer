@@ -4,6 +4,7 @@ import socket
 import time
 
 from .logger import logger
+from .Request import Request
 
 
 class BaseServer:
@@ -46,10 +47,16 @@ class BaseServer:
             print(
                 "Error: The default HTML file does not exist or is not accessible, falling back to default response."
             )
+            logger.warning(
+                "Error: The default HTML file does not exist or is not accessible, falling back to default response."
+            )
             self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
 
         except Exception as e:
             print(f"An unexpected error occurred while opening default HTML file: {e}")
+            logger.error(
+                f"An unexpected error occurred while opening default HTML file: {e}"
+            )
             self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br>{e}</h1></body></html>"""
 
         try:
@@ -63,40 +70,6 @@ class BaseServer:
             print(f"\n> Server listening on http://{self.HOST}:{self.PORT}")
         except OSError as e:
             print(f"Could not launch server: {e}")
-
-    @staticmethod
-    def parse_http_request(request: str) -> dict:
-        """
-        Method to parse the incoming request body
-
-        We extract individually method, path and then other parameters
-
-        """
-
-        try:
-            fields: list = request.split("\r\n")
-            # Extract method, protocol and path
-            main_infos = fields[0].split(" ")
-            method: str = main_infos[0].strip()
-            path: str = main_infos[1].strip().lower()
-            protocol: str = main_infos[2].strip()
-
-            fields = fields[1:]
-            output = {"method": method, "path": path, "protocol": protocol}
-
-            for field in fields:
-                if field:
-                    key, value = field.split(":", 1)  # 1 is maxsplit
-
-                    # Fill output dict with request data
-                    output[key.strip().lower()] = value.strip().lower()
-
-            return output
-
-        except Exception as e:
-            print(
-                f"An error occured: {e} Could not parse the following request:\n\n{request}"
-            )
 
     @staticmethod
     def serve_static_file(client_socket, file_path: str) -> None:
@@ -127,11 +100,11 @@ class BaseServer:
         request = client_socket.recv(1024)  # size of the buffer in bytes
         # Parse the request
         stream = request.decode()
-        parsed_stream = self.parse_http_request(stream)
+        parsed_stream = Request.from_socket(stream, client_socket)
 
-        path = parsed_stream["path"]
-        protocol = parsed_stream["protocol"]
-        request_method = parsed_stream["method"].upper()
+        path = parsed_stream.path
+        protocol = parsed_stream.protocol
+        request_method = parsed_stream.method.upper()
 
         if request_method == "GET":
             status_code = self.handle_get_request(path, client_socket, base_dir)
@@ -154,7 +127,6 @@ class BaseServer:
 
         else:
             # Serve static file
-
             url_to_path = path.replace("/", self.sep)[1:]  # getting rid of first /
 
             if not path.startswith("/static"):

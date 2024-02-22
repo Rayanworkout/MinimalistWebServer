@@ -1,5 +1,6 @@
 import os
 from BaseServer.BaseServer import BaseServer
+from BaseServer.logger import logger
 
 
 class MinimalistWebServer(BaseServer):
@@ -19,6 +20,7 @@ class MinimalistWebServer(BaseServer):
         """
 
         try:
+            logger.info("Starting web server")
             base_dir = os.path.dirname(__file__)
             # Accept incoming connections
             while True:
@@ -28,6 +30,7 @@ class MinimalistWebServer(BaseServer):
                     self.dispatch_request(client_socket, client_address, base_dir)
 
                 except Exception as e:
+                    logger.error(f"An error occured while handling the request: {e}")
                     print(f"An error occured while handling the request: {e}")
 
                 finally:
@@ -37,11 +40,11 @@ class MinimalistWebServer(BaseServer):
         # Gracefully catch KeyboardInterrupt exception
         except KeyboardInterrupt:
             print("Server shutting down...")
+            logger.info("Gracefully shutting down server")
             # Gracefully shutting down server socket
             self.server_socket.close()
 
 
 if __name__ == "__main__":
-    server = MinimalistWebServer()
-
+    server = MinimalistWebServer(port=8000)
     server.listen_forever()
