@@ -46,7 +46,7 @@ class MinimalistWebServer(BaseServer):
 
                     if path == "/":
                         # Default response with welcome.html
-                        self.send_response(client_socket, self.response)
+                        client_socket.sendall(self.response.encode())
 
                     else:
 

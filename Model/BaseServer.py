@@ -24,29 +24,32 @@ class BaseServer:
         self.HOST: str = host
         self.PORT: int = port
 
-        self.ok = """HTTP/1.1  200 OK\r\nContent-Type: application/json\r\n\r\n{"status": 200}"""
-
         self.sep = os.sep
+
+        current_dir = os.path.dirname(__file__)
+        default_html_path = os.path.join(current_dir, "welcome.html")
 
         try:
             # Read the content of the HTML file
-            with open("welcome.html", "r") as file:
-                self.html_content = file.read()
+            with open(default_html_path, "r") as file:
+                html_content = file.read()
 
             # Define the response with HTML content
-            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{self.html_content}"""
+            self.response = (
+                f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{html_content}"""
+            )
 
-        except (FileNotFoundError, PermissionError, IOError):
+        except (FileNotFoundError, PermissionError, IOError) as e:
             print(
                 "Error: The default HTML file does not exist, falling back to default response."
             )
-            self.response = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Hello, world!</h1></body></html>"""
+            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
 
         except Exception as e:
             print(
                 f"An unexpected error occurred while opening default HTML file: {e}\nFalling back to default response."
             )
-            self.response = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Hello, world!</h1></body></html>"""
+            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br>{e}</h1></body></html>"""
 
         # Init the socket server
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -58,7 +61,8 @@ class BaseServer:
         self.server_socket.listen(10)  # Allow up to 10 queued connections
         print(f"\nServer listening on http://{self.HOST}:{self.PORT}")
 
-    def parse_http_request(self, request: str) -> dict:
+    @staticmethod
+    def parse_http_request(request: str) -> dict:
         """
         Method to parse the incoming request body
 
@@ -86,7 +90,8 @@ class BaseServer:
                 f"An error occured: {e} Could not parse the following request:\n\n{request}"
             )
 
-    def serve_static_file(self, client_socket, file_path: str) -> None:
+    @staticmethod
+    def serve_static_file(client_socket, file_path: str) -> None:
 
         # Get the file's MIME type
         content_type = mimetypes.guess_type(file_path)[0]
@@ -102,10 +107,5 @@ class BaseServer:
                 )
                 client_socket.sendall(response)
         else:
-            self.send_response(
-                client_socket,
-                "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
-            )
-
-    def send_response(self, client_socket, response: str) -> None:
-        client_socket.sendall(response.encode())
+            response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found"
+            client_socket.sendall(response.encode())
