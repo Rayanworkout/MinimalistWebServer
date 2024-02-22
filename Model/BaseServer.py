@@ -19,21 +19,20 @@ class BaseServer:
 
     """
 
-    current_dir = os.path.dirname(__file__)
-    default_html_path = os.path.join(current_dir, "welcome.html")
-
-    sep = os.sep
-
     def __init__(self, host, port) -> None:
 
         # Define the host and port
         self.HOST: str = host
         self.PORT: int = port
         self.project_folder = ""
+        self.sep = os.sep
+
+        current_dir = os.path.dirname(__file__)
+        default_html_path = os.path.join(current_dir, "welcome.html")
 
         try:
             # Read the content of the HTML file
-            with open(self.default_html_path, "r") as file:
+            with open(default_html_path) as file:
                 html_content = file.read()
 
             # Define the response with HTML content
@@ -43,14 +42,12 @@ class BaseServer:
 
         except (FileNotFoundError, PermissionError, IOError) as e:
             print(
-                "Error: The default HTML file does not exist, falling back to default response."
+                "Error: The default HTML file does not exist or is not accessible, falling back to default response."
             )
             self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
 
         except Exception as e:
-            print(
-                f"An unexpected error occurred while opening default HTML file: {e}\nFalling back to default response."
-            )
+            print(f"An unexpected error occurred while opening default HTML file: {e}")
             self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br>{e}</h1></body></html>"""
 
         # Init the socket server
@@ -69,12 +66,13 @@ class BaseServer:
         Method to parse the incoming request body
 
         We extract individually method, path and then other parameters
+
         """
 
         try:
             fields: list = request.split("\r\n")
             # Extract method and path
-            method: str = fields[0].split(" ")[0].strip().lower()
+            method: str = fields[0].split(" ")[0].strip()
             path: str = fields[0].split(" ")[1].strip().lower()
 
             fields = fields[1:]
@@ -83,7 +81,9 @@ class BaseServer:
             for field in fields:
                 if field:
                     key, value = field.split(":", 1)  # 1 is maxsplit
-                output[key.strip().lower()] = value.strip().lower()
+
+                    # Fill output dict with request data
+                    output[key.strip().lower()] = value.strip().lower()
 
             return output
 
