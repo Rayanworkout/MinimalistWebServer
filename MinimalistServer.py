@@ -20,8 +20,9 @@ class MinimalistWebServer(BaseServer):
         """
 
         try:
-            logger.info("Starting web server")
+            logger.info("Starting server")
             base_dir = os.path.dirname(__file__)
+
             # Accept incoming connections
             while True:
                 client_socket, client_address = self.server_socket.accept()

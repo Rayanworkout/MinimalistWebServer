@@ -22,6 +22,10 @@ class BaseServer:
 
     """
 
+    # Responses
+    BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}""".encode()
+    NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found".encode()
+
     def __init__(self, host, port) -> None:
 
         # Define the host and port
@@ -90,8 +94,7 @@ class BaseServer:
                 # Returning status code to be able to print it
                 return 200
         else:
-            response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found"
-            client_socket.sendall(response.encode())
+            client_socket.sendall(BaseServer.NOT_FOUND_RESPONSE)
             return 404
 
     def dispatch_request(self, client_socket, client_address, base_dir):
@@ -110,9 +113,8 @@ class BaseServer:
             status_code = self.handle_get_request(path, client_socket, base_dir)
         else:
             status_code = 400
-            bad_request_response = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}"""
 
-            client_socket.sendall(bad_request_response.encode())
+            client_socket.sendall(BaseServer.BAD_REQUEST_RESPONSE)
 
         readable_time = time.strftime("%T")
         log = f'{client_address[0]} - - [{readable_time}] "{request_method} {path} {protocol}" {status_code}'
