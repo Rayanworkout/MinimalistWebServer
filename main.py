@@ -1,12 +1,11 @@
 import os
-import mimetypes
 
 from Model.BaseServer import BaseServer
 
 
 class MinimalistWebServer(BaseServer):
 
-    def __init__(self, host, port) -> None:
+    def __init__(self, host="127.0.0.1", port=8080) -> None:
         super().__init__(host, port)
 
     def listen_forever(self) -> None:
@@ -53,7 +52,7 @@ class MinimalistWebServer(BaseServer):
 
                         # Serve static file
 
-                        url_to_path = path.replace("/", os.sep)[
+                        url_to_path = path.replace("/", self.sep)[
                             1:
                         ]  # getting read of first /
                         base_dir = os.path.dirname(__file__)
@@ -79,58 +78,6 @@ class MinimalistWebServer(BaseServer):
             print("Server shutting down...")
             # Gracefully shutting down server socket
             self.server_socket.close()
-
-    def send_response(self, client_socket, response: str) -> None:
-        client_socket.sendall(response.encode())
-
-    def parse_http_request(self, request: str) -> dict:
-        """
-        Method to parse the incoming request body
-
-        We extract individually method, path and then other parameters
-        """
-
-        try:
-            fields: list = request.split("\r\n")
-            # Extract method and path
-            method: str = fields[0].split(" ")[0].strip().lower()
-            path: str = fields[0].split(" ")[1].strip().lower()
-
-            fields = fields[1:]
-            output = {"method": method, "path": path}
-
-            for field in fields:
-                if field:
-                    key, value = field.split(":", 1)  # 1 is maxsplit
-                output[key.strip().lower()] = value.strip().lower()
-
-            return output
-
-        except Exception as e:
-            print(
-                f"An error occured: {e} Could not parse the following request:\n\n{request}"
-            )
-
-    def serve_static_file(self, client_socket, file_path: str) -> None:
-
-        # Get the file's MIME type
-        content_type = mimetypes.guess_type(file_path)[0]
-
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            with open(file_path, "rb") as file:
-                file_content = file.read()
-                response = (
-                    f"HTTP/1.1 200 OK\r\nContent-Length: {len(file_content)}\r\nContent-Type: {content_type}\r\n\r\n".encode(
-                        "utf-8"
-                    )
-                    + file_content
-                )
-                client_socket.sendall(response)
-        else:
-            self.send_response(
-                client_socket,
-                "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
-            )
 
 
 if __name__ == "__main__":

@@ -1,27 +1,32 @@
+import mimetypes
+import os
 import socket
 
 
 class BaseServer:
-     def __init__(self, host="127.0.0.1", port=8080) -> None:
-        """
-        Initialize the web server class.
+    """
 
-        We create a TCP socket listening for the initial
-        client connexion through IPv4.
+    Base Server class
+    We create a TCP socket listening for the initial
+    client connexion through IPv4.
 
-        Then we bind our socket to our host:port to be able to receive incoming
-        connections on this address.
+    Then we bind our socket to our host:port to be able to receive incoming
+    connections on this address.
 
-        After binding, we use server_socket.listen() to prepare the server to accept
-        connections.
+    After binding, we use server_socket.listen() to prepare the server to accept
+    connections.
 
-        """
+    """
+
+    def __init__(self, host, port) -> None:
 
         # Define the host and port
         self.HOST: str = host
         self.PORT: int = port
 
         self.ok = """HTTP/1.1  200 OK\r\nContent-Type: application/json\r\n\r\n{"status": 200}"""
+
+        self.sep = os.sep
 
         try:
             # Read the content of the HTML file
@@ -52,3 +57,55 @@ class BaseServer:
         # Listen for incoming connections
         self.server_socket.listen(10)  # Allow up to 10 queued connections
         print(f"\nServer listening on http://{self.HOST}:{self.PORT}")
+
+    def parse_http_request(self, request: str) -> dict:
+        """
+        Method to parse the incoming request body
+
+        We extract individually method, path and then other parameters
+        """
+
+        try:
+            fields: list = request.split("\r\n")
+            # Extract method and path
+            method: str = fields[0].split(" ")[0].strip().lower()
+            path: str = fields[0].split(" ")[1].strip().lower()
+
+            fields = fields[1:]
+            output = {"method": method, "path": path}
+
+            for field in fields:
+                if field:
+                    key, value = field.split(":", 1)  # 1 is maxsplit
+                output[key.strip().lower()] = value.strip().lower()
+
+            return output
+
+        except Exception as e:
+            print(
+                f"An error occured: {e} Could not parse the following request:\n\n{request}"
+            )
+
+    def serve_static_file(self, client_socket, file_path: str) -> None:
+
+        # Get the file's MIME type
+        content_type = mimetypes.guess_type(file_path)[0]
+
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            with open(file_path, "rb") as file:
+                file_content = file.read()
+                response = (
+                    f"HTTP/1.1 200 OK\r\nContent-Length: {len(file_content)}\r\nContent-Type: {content_type}\r\n\r\n".encode(
+                        "utf-8"
+                    )
+                    + file_content
+                )
+                client_socket.sendall(response)
+        else:
+            self.send_response(
+                client_socket,
+                "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found",
+            )
+
+    def send_response(self, client_socket, response: str) -> None:
+        client_socket.sendall(response.encode())
