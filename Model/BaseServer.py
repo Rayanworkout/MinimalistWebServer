@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import socket
+import time
 
 
 class BaseServer:
@@ -18,20 +19,21 @@ class BaseServer:
 
     """
 
+    current_dir = os.path.dirname(__file__)
+    default_html_path = os.path.join(current_dir, "welcome.html")
+
+    sep = os.sep
+
     def __init__(self, host, port) -> None:
 
         # Define the host and port
         self.HOST: str = host
         self.PORT: int = port
-
-        self.sep = os.sep
-
-        current_dir = os.path.dirname(__file__)
-        default_html_path = os.path.join(current_dir, "welcome.html")
+        self.project_folder = ""
 
         try:
             # Read the content of the HTML file
-            with open(default_html_path, "r") as file:
+            with open(self.default_html_path, "r") as file:
                 html_content = file.read()
 
             # Define the response with HTML content
@@ -106,6 +108,52 @@ class BaseServer:
                     + file_content
                 )
                 client_socket.sendall(response)
+                # Returning status code to be able to print it
+                return 200
         else:
             response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found"
             client_socket.sendall(response.encode())
+            return 404
+
+    def dispatch_request(self, client_socket, base_dir):
+
+        # Receive data from the client
+        request = client_socket.recv(1024)  # size of the buffer in bytes
+        # Parse the request
+        stream = request.decode()
+        parsed_stream = self.parse_http_request(stream)
+
+        path = parsed_stream["path"]
+        request_method = parsed_stream["method"].upper()
+
+        if request_method == "GET":
+            status_code = self.handle_get_request(path, client_socket, base_dir)
+
+        readable_time = time.strftime("%T")
+        log = f"{readable_time} | {request_method} {path} {status_code}"
+        # Log request infos
+        print(log)
+
+    def handle_get_request(self, path, client_socket, base_dir):
+        if path == "/":
+            # Default response with welcome.html
+            client_socket.sendall(self.response.encode())
+
+        else:
+            # Serve static file
+
+            url_to_path = path.replace("/", self.sep)[1:]  # getting rid of first /
+
+            if not path.startswith("/static"):
+                # Serve index.html
+                index_path = os.path.join(base_dir, url_to_path, "index.html")
+                self.project_folder = url_to_path
+
+                status_code = self.serve_static_file(client_socket, index_path)
+
+            else:
+                # Add project folder to path
+                file_path = os.path.join(base_dir, self.project_folder, url_to_path)
+                status_code = self.serve_static_file(client_socket, file_path)
+
+            return status_code
