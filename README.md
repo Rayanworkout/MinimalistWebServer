@@ -9,3 +9,16 @@ The Minimalist Web Server is a lightweight Python-based web server utilizing the
 The goal of creating this web server was to explore how web servers function and gain a better understanding of the HTTP protocol.By constructing a basic server from scratch, the aim was to grasp fundamental concepts such as handling incoming connections, parsing HTTP requests, and serving responses.
 
 This project serves as a stepping stone to comprehend the workings of sophisticated web servers like Apache or Nginx.
+
+## Features
+
+- [x] Serve static files
+- [x] Default index file
+- [x] Logging
+- [x] Error handling
+- [ ] Multi-threaded
+
+
+## Usage
+
+Todo ...

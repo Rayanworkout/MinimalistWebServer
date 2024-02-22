@@ -1,5 +1,5 @@
 import os
-from Model.BaseServer import BaseServer
+from BaseServer.BaseServer import BaseServer
 
 
 class MinimalistWebServer(BaseServer):
@@ -22,7 +22,7 @@ class MinimalistWebServer(BaseServer):
             base_dir = os.path.dirname(__file__)
             # Accept incoming connections
             while True:
-                client_socket, _ = self.server_socket.accept()
+                client_socket, client_address = self.server_socket.accept()
 
                 try:
                     self.dispatch_request(client_socket, base_dir)
