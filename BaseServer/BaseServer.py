@@ -52,15 +52,17 @@ class BaseServer:
             print(f"An unexpected error occurred while opening default HTML file: {e}")
             self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br>{e}</h1></body></html>"""
 
-        # Init the socket server
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            # Init the socket server
+            self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # Bind the socket to the host and port
+            self.server_socket.bind((self.HOST, self.PORT))
 
-        # Bind the socket to the host and port
-        self.server_socket.bind((self.HOST, self.PORT))
-
-        # Listen for incoming connections
-        self.server_socket.listen(10)  # Allow up to 10 queued connections
-        print(f"\n> Server listening on http://{self.HOST}:{self.PORT}")
+            # Listen for incoming connections
+            self.server_socket.listen(10)  # Allow up to 10 queued connections
+            print(f"\n> Server listening on http://{self.HOST}:{self.PORT}")
+        except OSError as e:
+            print(f"Could not launch server: {e}")
 
     @staticmethod
     def parse_http_request(request: str) -> dict:

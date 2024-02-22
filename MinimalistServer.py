@@ -33,9 +33,6 @@ class MinimalistWebServer(BaseServer):
                 finally:
                     # Close the client socket
                     client_socket.close()
-        
-        except OSError as e:
-            print(f"Could not launch server: {e}")
 
         # Gracefully catch KeyboardInterrupt exception
         except KeyboardInterrupt:
