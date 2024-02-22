@@ -58,6 +58,9 @@ class BaseServer:
         try:
             # Init the socket server
             self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+            # Allow reusing the same address
+            self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             # Bind the socket to the host and port
             self.server_socket.bind((self.HOST, self.PORT))
 
