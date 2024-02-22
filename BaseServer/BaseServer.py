@@ -47,21 +47,13 @@ class BaseServer:
                 f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{html_content}"""
             )
 
-        except (FileNotFoundError, PermissionError, IOError) as e:
-            print(
-                "Error: The default HTML file does not exist or is not accessible, falling back to default response."
-            )
-            logger.warning(
-                "Error: The default HTML file does not exist or is not accessible, falling back to default response."
-            )
-            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
-
         except Exception as e:
-            print(f"An unexpected error occurred while opening default HTML file: {e}")
-            logger.error(
-                f"An unexpected error occurred while opening default HTML file: {e}"
-            )
-            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br>{e}</h1></body></html>"""
+            message = f"Error: The default HTML file does not exist or is not accessible, falling back to default response. \n\n{e}"
+
+            print(message)
+            logger.warning(message.replace("\n", ""))
+
+            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
 
         try:
             # Init the socket server
