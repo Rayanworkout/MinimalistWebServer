@@ -3,6 +3,8 @@ import os
 import socket
 import time
 
+from .logger import logger
+
 
 class BaseServer:
     """
@@ -71,12 +73,14 @@ class BaseServer:
 
         try:
             fields: list = request.split("\r\n")
-            # Extract method and path
-            method: str = fields[0].split(" ")[0].strip()
-            path: str = fields[0].split(" ")[1].strip().lower()
+            # Extract method, protocol and path
+            main_infos = fields[0].split(" ")
+            method: str = main_infos[0].strip()
+            path: str = main_infos[1].strip().lower()
+            protocol: str = main_infos[2].strip()
 
             fields = fields[1:]
-            output = {"method": method, "path": path}
+            output = {"method": method, "path": path, "protocol": protocol}
 
             for field in fields:
                 if field:
@@ -115,7 +119,7 @@ class BaseServer:
             client_socket.sendall(response.encode())
             return 404
 
-    def dispatch_request(self, client_socket, base_dir):
+    def dispatch_request(self, client_socket, client_address, base_dir):
 
         # Receive data from the client
         request = client_socket.recv(1024)  # size of the buffer in bytes
@@ -124,6 +128,7 @@ class BaseServer:
         parsed_stream = self.parse_http_request(stream)
 
         path = parsed_stream["path"]
+        protocol = parsed_stream["protocol"]
         request_method = parsed_stream["method"].upper()
 
         if request_method == "GET":
@@ -135,8 +140,9 @@ class BaseServer:
             client_socket.sendall(bad_request_response.encode())
 
         readable_time = time.strftime("%T")
-        log = f"{readable_time} | {request_method} {path} {status_code}"
+        log = f'{client_address[0]} - - [{readable_time}] "{request_method} {path} {protocol}" {status_code}'
         # Log request infos
+        logger.info(log)
         print(log)
 
     def handle_get_request(self, path, client_socket, base_dir):

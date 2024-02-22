@@ -25,7 +25,7 @@ class MinimalistWebServer(BaseServer):
                 client_socket, client_address = self.server_socket.accept()
 
                 try:
-                    self.dispatch_request(client_socket, base_dir)
+                    self.dispatch_request(client_socket, client_address, base_dir)
 
                 except Exception as e:
                     print(f"An error occured while handling the request: {e}")
@@ -33,6 +33,9 @@ class MinimalistWebServer(BaseServer):
                 finally:
                     # Close the client socket
                     client_socket.close()
+        
+        except OSError as e:
+            print(f"Could not launch server: {e}")
 
         # Gracefully catch KeyboardInterrupt exception
         except KeyboardInterrupt:
