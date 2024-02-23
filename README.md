@@ -4,7 +4,7 @@ _This project is currently under development._
 
 This project is a lightweight Python-based web server utilizing the socket module. While simplistic, it offers the functionality to serve static files. It is intended for educational purposes rather than production use.
 
-![default page ](BaseServer/default_page.png)
+![default page](BaseServer/default_page.png)
 
 ## Why ?
 
@@ -12,13 +12,17 @@ The goal of creating this web server was to explore how web servers function and
 
 This project serves as a stepping stone to comprehend the workings of sophisticated web servers like Apache or Nginx.
 
+![logs](BaseServer/logs.png)
+
 ## Features
 
 - [x] Serve static files
 - [x] Default index file
 - [x] Logging
 - [x] Error handling
+- [x] Documentation
 - [ ] Multi-threaded
+- [ ] HTTPS support
 
 
 ## Usage

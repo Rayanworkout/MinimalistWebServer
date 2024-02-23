@@ -20,7 +20,10 @@ class BaseServer:
     After binding, we use server_socket.listen() to prepare the server to accept
     connections.
 
+    The server can then accept connections through MinimalistWebServer.listen_forever()
+
     Methods:
+
         dispatch_request(client_socket: socket.socket, client_address: str) => parse request and verifies method. Calls
                                                                                handle_get_request() for GET or returns
                                                                                BAD_REQUEST_RESPONSE.
@@ -33,7 +36,6 @@ class BaseServer:
 
         serve_static_file(client_socket: socket.socket, file_path: str) => returns an encoded response containing the
                                                                            content of the file or NOT_FOUND_RESPONSE.
-
     """
 
     # Responses
@@ -45,11 +47,14 @@ class BaseServer:
     CURRENT_DIR = os.path.dirname(__file__)
     DEFAULT_HTML_PATH = os.path.join(CURRENT_DIR, "default.html")
 
-    def __init__(self, host, port) -> None:
+    def __init__(self, host: str, port: int) -> None:
 
         # Define the host and port
-        self.HOST: str = host
-        self.PORT: int = port
+        self.HOST = host
+        self.PORT = port
+
+        # Cache default html content
+        self.DEFAULT_HTML_FILE_CONTENT = None
 
         # Check if port is an int
         try:
@@ -58,14 +63,13 @@ class BaseServer:
             raise ValueError("Port number must be an integer")
 
         try:
-            # Read the content of the HTML file
-            with open(BaseServer.DEFAULT_HTML_PATH) as file:
-                html_content = file.read()
+            # Read the content of the HTML file if not cached
+            if not self.DEFAULT_HTML_FILE_CONTENT:
+                with open(BaseServer.DEFAULT_HTML_PATH) as file:
+                    self.DEFAULT_HTML_FILE_CONTENT = file.read()
 
             # Define the response with HTML content
-            self.response = (
-                f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{html_content}"""
-            )
+            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{self.DEFAULT_HTML_FILE_CONTENT}"""
 
         except Exception as e:
             message = f"Error: The default HTML file does not exist or is not accessible, falling back to default response. \n\n{e}"
@@ -87,10 +91,12 @@ class BaseServer:
             # Listen for incoming connections
             self.server_socket.listen(10)  # Allow up to 10 queued connections
             print(f"\n> Server listening on http://{self.HOST}:{self.PORT}\n")
-        except OSError as e:
-            print(f"Could not launch server: {e}")
+        except Exception as e:
+            raise Exception(f"Could not launch server: {e}")
 
-    def dispatch_request(self, client_socket: socket.socket, client_address: str) -> None:
+    def dispatch_request(
+        self, client_socket: socket.socket, client_address: str
+    ) -> None:
 
         # Receive data from the client
         request = client_socket.recv(1024)  # size of the buffer in bytes
