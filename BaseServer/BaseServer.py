@@ -115,6 +115,7 @@ class BaseServer:
         except AttributeError:
             # Request is malformed or hasn't been parsed correctly
             client_socket.sendall(BaseServer._BAD_REQUEST_RESPONSE)
+            client_socket.close()
 
         if request_method == "GET":
             status_code = BaseServer.handle_get_request(client_socket, path)

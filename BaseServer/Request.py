@@ -46,6 +46,8 @@ class Request(NamedTuple):
 
         except (Exception, ValueError) as e:
             print(
-                f"An error occured: {e} Could not parse the following request:\n\n{request}"
+                f"An error occured: {e}\nCould not parse the following request:\n\n{request}"
             )
             client_socket.sendall(cls._ERROR_RESPONSE)
+            client_socket.close()
+            
