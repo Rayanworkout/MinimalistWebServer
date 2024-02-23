@@ -39,6 +39,7 @@ class BaseServer:
     """
 
     # Responses
+    DEFAULT_RESPONSE = None  # computed inside __init__()
     BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}""".encode()
     NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found".encode()
 
@@ -69,7 +70,7 @@ class BaseServer:
                     self.DEFAULT_HTML_FILE_CONTENT = file.read()
 
             # Define the response with HTML content
-            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{self.DEFAULT_HTML_FILE_CONTENT}"""
+            BaseServer.DEFAULT_RESPONSE = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{self.DEFAULT_HTML_FILE_CONTENT}"""
 
         except Exception as e:
             message = f"Error: The default HTML file does not exist or is not accessible, falling back to default response. \n\n{e}"
@@ -77,7 +78,7 @@ class BaseServer:
             print(message)
             logger.warning(message.replace("\n", ""))
 
-            self.response = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
+            BaseServer.DEFAULT_RESPONSE = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
 
         try:
             # Init the socket server
@@ -94,9 +95,8 @@ class BaseServer:
         except Exception as e:
             raise Exception(f"Could not launch server: {e}")
 
-    def dispatch_request(
-        self, client_socket: socket.socket, client_address: str
-    ) -> None:
+    @classmethod
+    def dispatch_request(cls, client_socket: socket.socket, client_address: str) -> None:
 
         # Receive data from the client
         request = client_socket.recv(1024)  # size of the buffer in bytes
@@ -109,7 +109,7 @@ class BaseServer:
         request_method = parsed_stream.method.upper()
 
         if request_method == "GET":
-            status_code = self.handle_get_request(client_socket, path)
+            status_code = BaseServer.handle_get_request(client_socket, path)
         else:
             status_code = 400
 
@@ -121,10 +121,11 @@ class BaseServer:
         logger.info(log)
         print(log)
 
-    def handle_get_request(self, client_socket: socket.socket, path: str):
+    @classmethod
+    def handle_get_request(cls, client_socket: socket.socket, path: str):
         if path == "/":
             # Default response with welcome.html
-            client_socket.sendall(self.response.encode())
+            client_socket.sendall(BaseServer.DEFAULT_RESPONSE.encode())
             status_code = 200
 
         else:
@@ -133,12 +134,12 @@ class BaseServer:
                 1:
             ]  # getting rid of first /
 
-            status_code = self.serve_static_file(client_socket, url_to_path)
+            status_code = BaseServer.serve_static_file(client_socket, url_to_path)
 
         return status_code
 
-    @staticmethod
-    def serve_static_file(client_socket: socket.socket, file_path: str) -> int:
+    @classmethod
+    def serve_static_file(cls, client_socket: socket.socket, file_path: str) -> int:
 
         # Get the file's MIME type
         content_type = mimetypes.guess_type(file_path)[0]

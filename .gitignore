@@ -1,5 +1,4 @@
 .venv/
-example/
-example_project2/
+example_project/
 __pycache__/
 *.log

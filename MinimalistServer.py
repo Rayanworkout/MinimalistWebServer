@@ -28,7 +28,7 @@ class MinimalistWebServer(BaseServer):
                 client_socket, client_address = self.server_socket.accept()
 
                 try:
-                    self.dispatch_request(client_socket, client_address)
+                    BaseServer.dispatch_request(client_socket, client_address)
 
                 except Exception as e:
                     logger.error(f"An error occured while handling the request: {e}")
@@ -47,8 +47,10 @@ class MinimalistWebServer(BaseServer):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Minimalist Web Server')
-    parser.add_argument('--port', type=int, default=8080, help='Port number for the server')
+    parser = argparse.ArgumentParser(description="Minimalist Web Server")
+    parser.add_argument(
+        "--port", type=int, default=8080, help="Port number for the server"
+    )
     args = parser.parse_args()
 
     server = MinimalistWebServer(port=args.port)
