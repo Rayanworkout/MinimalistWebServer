@@ -21,8 +21,10 @@ This project serves as a stepping stone to comprehend the workings of sophistica
 
 ## Usage
 
-_You need python installed on your machine to run this program._
-First you need to clone this repository:
+_You need python and git installed on your machine to run this program._
+
+
+First, clone this repository:
 <pre>git clone https://github.com/Rayanworkout/MinimalistWebServer</pre>
 
 <p>
