@@ -4,7 +4,7 @@ _This project is currently under development._
 
 This project is a lightweight Python-based web server utilizing the socket module. While simplistic, it offers the functionality to serve static files. It is intended for educational purposes rather than production use.
 
-![default page ](default_page.png)
+![default page ](BaseServer/default_page.png)
 
 ## Why ?
 
@@ -37,12 +37,12 @@ cd MinimalistWebServer
 
 Then launch the server:
 ```bash
-python3 MinimalistWebServer.py
+python3 MinimalistServer.py
 ```
 
 or under Windows:
 ```bash
-python MinimalistWebServer.py
+python MinimalistServer.py
 ```
 The server listens on port 8080 by default, but you can specify another port when creating the
 server instance or at runtime. The port number must be of type int.
@@ -53,7 +53,7 @@ At runtime:
 python3 MinimalistServer.py --port 8000
 ```
 
-or at instanciation:
+or at server creation, at the end of ```MinimalistServer.py```:
 
 Example:
 ```bash
@@ -65,7 +65,7 @@ with your own.
 
 
 This server is intended to serve static files. To do that, simply create a project folder along
-```MinimalistWebServer.py```, launch the server and access the URL.
+```MinimalistServer.py```, launch the server and access the URL.
 
 All libraries used are built-in inside Python 3; no external dependencies are needed.
 
@@ -89,9 +89,11 @@ MinimalistWebServer/your_project/
 When your project folder is ready, you can acess the URL of your project.
 
 You need to mention your html file in the path, otherwise the server won't find
-it. For example:
+it. Don't forget to adapt the port number if you changed it.
+
+For example:
 ```bash
-http://127.0.0.1/your_project/index.html
+http://127.0.0.1:8080/your_project/index.html
 ```
 That's it, you should be able to see your entry file and all the linked static files will be
 served as well.
