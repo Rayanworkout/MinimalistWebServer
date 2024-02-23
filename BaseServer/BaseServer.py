@@ -26,7 +26,7 @@ class BaseServer:
 
         dispatch_request(client_socket: socket.socket, client_address: str) => parse request and verifies method. Calls
                                                                                handle_get_request() for GET or returns
-                                                                               BAD_REQUEST_RESPONSE.
+                                                                               _BAD_REQUEST_RESPONSE.
                                                                                Also log request data.
 
         handle_get_request(client_socket: socket.socket, path: str) => called by dispatch_request(). Serves default
@@ -35,27 +35,27 @@ class BaseServer:
 
 
         serve_static_file(client_socket: socket.socket, file_path: str) => returns an encoded response containing the
-                                                                           content of the file or NOT_FOUND_RESPONSE.
+                                                                           content of the file or _NOT_FOUND_RESPONSE.
     """
 
     # Responses
-    DEFAULT_RESPONSE = None  # computed inside __init__()
-    BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}""".encode()
-    NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found".encode()
+    _DEFAULT_RESPONSE = None  # computed inside __init__()
+    _BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}""".encode()
+    _NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found".encode()
 
-    SEP = os.sep
+    _SEP = os.sep
 
-    CURRENT_DIR = os.path.dirname(__file__)
-    DEFAULT_HTML_PATH = os.path.join(CURRENT_DIR, "default.html")
+    # Cache default html content
+    _DEFAULT_HTML_FILE_CONTENT = None
+
+    _CURRENT_DIR = os.path.dirname(__file__)
+    _DEFAULT_HTML_PATH = os.path.join(_CURRENT_DIR, "default.html")
 
     def __init__(self, host: str, port: int) -> None:
 
         # Define the host and port
         self.HOST = host
         self.PORT = port
-
-        # Cache default html content
-        self.DEFAULT_HTML_FILE_CONTENT = None
 
         # Check if port is an int
         try:
@@ -65,12 +65,12 @@ class BaseServer:
 
         try:
             # Read the content of the HTML file if not cached
-            if not self.DEFAULT_HTML_FILE_CONTENT:
-                with open(BaseServer.DEFAULT_HTML_PATH) as file:
-                    self.DEFAULT_HTML_FILE_CONTENT = file.read()
+            if not BaseServer._DEFAULT_HTML_FILE_CONTENT:
+                with open(BaseServer._DEFAULT_HTML_PATH) as file:
+                    BaseServer._DEFAULT_HTML_FILE_CONTENT = file.read()
 
             # Define the response with HTML content
-            BaseServer.DEFAULT_RESPONSE = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{self.DEFAULT_HTML_FILE_CONTENT}"""
+            BaseServer._DEFAULT_RESPONSE = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{BaseServer._DEFAULT_HTML_FILE_CONTENT}"""
 
         except Exception as e:
             message = f"Error: The default HTML file does not exist or is not accessible, falling back to default response. \n\n{e}"
@@ -78,7 +78,7 @@ class BaseServer:
             print(message)
             logger.warning(message.replace("\n", ""))
 
-            BaseServer.DEFAULT_RESPONSE = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
+            BaseServer._DEFAULT_RESPONSE = f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Could not open default HTML file, check your terminal<br><br>{e}</h1></body></html>"""
 
         try:
             # Init the socket server
@@ -96,7 +96,9 @@ class BaseServer:
             raise Exception(f"Could not launch server: {e}")
 
     @classmethod
-    def dispatch_request(cls, client_socket: socket.socket, client_address: str) -> None:
+    def dispatch_request(
+        cls, client_socket: socket.socket, client_address: str
+    ) -> None:
 
         # Receive data from the client
         request = client_socket.recv(1024)  # size of the buffer in bytes
@@ -113,7 +115,7 @@ class BaseServer:
         else:
             status_code = 400
 
-            client_socket.sendall(BaseServer.BAD_REQUEST_RESPONSE)
+            client_socket.sendall(BaseServer._BAD_REQUEST_RESPONSE)
 
         readable_time = time.strftime("%T")
         log = f'{client_address[0]} - - [{readable_time}] "{request_method} {path} {protocol}" {status_code}'
@@ -125,12 +127,12 @@ class BaseServer:
     def handle_get_request(cls, client_socket: socket.socket, path: str):
         if path == "/":
             # Default response with welcome.html
-            client_socket.sendall(BaseServer.DEFAULT_RESPONSE.encode())
+            client_socket.sendall(BaseServer._DEFAULT_RESPONSE.encode())
             status_code = 200
 
         else:
             # Serve static file
-            url_to_path = path.replace("/", BaseServer.SEP)[
+            url_to_path = path.replace("/", BaseServer._SEP)[
                 1:
             ]  # getting rid of first /
 
@@ -157,5 +159,5 @@ class BaseServer:
                 # Returning status code to be able to print it
                 return 200
         else:
-            client_socket.sendall(BaseServer.NOT_FOUND_RESPONSE)
+            client_socket.sendall(BaseServer._NOT_FOUND_RESPONSE)
             return 404
