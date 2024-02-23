@@ -1,3 +1,5 @@
+import argparse
+
 from BaseServer.BaseServer import BaseServer
 from BaseServer.logger import logger
 
@@ -45,5 +47,9 @@ class MinimalistWebServer(BaseServer):
 
 
 if __name__ == "__main__":
-    server = MinimalistWebServer()
+    parser = argparse.ArgumentParser(description='Minimalist Web Server')
+    parser.add_argument('--port', type=int, default=8080, help='Port number for the server')
+    args = parser.parse_args()
+
+    server = MinimalistWebServer(port=args.port)
     server.listen_forever()

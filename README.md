@@ -4,6 +4,8 @@ _This project is currently under development._
 
 The Minimalist Web Server is a lightweight Python-based web server utilizing the socket module. While simplistic, it offers the functionality to serve static files. This project is intended for educational purposes rather than production use.
 
+![default page ](default_page.png)
+
 ## Why ?
 
 The goal of creating this web server was to explore how web servers function and gain a better understanding of the HTTP protocol. By constructing a basic server from scratch, the aim was to grasp fundamental concepts such as handling incoming connections, parsing HTTP requests, and serving responses.
@@ -33,6 +35,7 @@ git clone https://github.com/Rayanworkout/MinimalistWebServer
 cd MinimalistWebServer
 ```
 
+Then launch the server:
 ```bash
 python3 MinimalistWebServer.py
 ```
@@ -41,8 +44,16 @@ or under Windows:
 ```bash
 python MinimalistWebServer.py
 ```
-The server listens on port 8080 by default, but you can mention another port when creating the
-server instance. The port number must be of type int.
+The server listens on port 8080 by default, but you can specify another port when creating the
+server instance or at runtime. The port number must be of type int.
+
+At runtime:
+
+```bash
+python3 MinimalistServer.py --port 8000
+```
+
+or at instanciation:
 
 Example:
 ```bash
