@@ -21,19 +21,19 @@ This project serves as a stepping stone to comprehend the workings of sophistica
 
 ## Usage
 
-<div class="section_header">
-    <div id="changes"></div>
-    How to use ?
-</div>
-<div class="content_section_text">
-    <p>
-        This server is able to serve your static files. Simply create a project folder along
-        <tt>MinimalistWebServer.py</tt>, launch the server and access the right URL. All libraries used are
-        built-in inside Python 3; no external dependencies are needed.
-    </p>
-    <p>You can organize your project folder as you want, but the recommended structure is as follows:
-    </p>
-        <pre>
+_You need python installed on your machine to run this program._
+First you need to clone this repository:
+<pre>git clone https://github.com/Rayanworkout/MinimalistWebServer</pre>
+
+<p>
+    This server is intended to serve your static files. Simply create a project folder along
+    <tt>MinimalistWebServer.py</tt>, launch the server and access the right URL. All libraries used are
+    built-in inside Python 3; no external dependencies are needed.
+</p>
+
+<p>You can organize your project folder as you want, but the recommended structure is as follows:
+</p>
+    <pre>
 MinimalistWebServer/your_project/
                 |-- index.html # or the name you want
                 |
