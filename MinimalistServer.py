@@ -40,7 +40,7 @@ class MinimalistWebServer(BaseServer):
 
         # Gracefully catch KeyboardInterrupt exception
         except KeyboardInterrupt:
-            print("Server shutting down...")
+            print("\nServer shutting down...")
             logger.info("Gracefully shutting down")
             # Gracefully shutting down server socket
             self.server_socket.close()

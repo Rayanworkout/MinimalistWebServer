@@ -20,21 +20,36 @@ class BaseServer:
     After binding, we use server_socket.listen() to prepare the server to accept
     connections.
 
+    Methods:
+        dispatch_request(client_socket: socket.socket, client_address: str) => parse request and verifies method. Calls
+                                                                               handle_get_request() for GET or returns
+                                                                               BAD_REQUEST_RESPONSE.
+                                                                               Also log request data.
+
+        handle_get_request(client_socket: socket.socket, path: str) => called by dispatch_request(). Serves default
+                                                                       HTML file at root URL, and calls serve_static_file()
+                                                                       for other URLs.
+
+
+        serve_static_file(client_socket: socket.socket, file_path: str) => returns an encoded response containing the
+                                                                           content of the file or NOT_FOUND_RESPONSE.
+
     """
 
     # Responses
     BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}""".encode()
     NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found".encode()
 
+    SEP = os.sep
+
+    CURRENT_DIR = os.path.dirname(__file__)
+    DEFAULT_HTML_PATH = os.path.join(CURRENT_DIR, "default.html")
+
     def __init__(self, host, port) -> None:
 
         # Define the host and port
         self.HOST: str = host
         self.PORT: int = port
-        self.sep = os.sep
-
-        current_dir = os.path.dirname(__file__)
-        default_html_path = os.path.join(current_dir, "default.html")
 
         # Check if port is an int
         try:
@@ -44,7 +59,7 @@ class BaseServer:
 
         try:
             # Read the content of the HTML file
-            with open(default_html_path) as file:
+            with open(BaseServer.DEFAULT_HTML_PATH) as file:
                 html_content = file.read()
 
             # Define the response with HTML content
@@ -75,8 +90,49 @@ class BaseServer:
         except OSError as e:
             print(f"Could not launch server: {e}")
 
+    def dispatch_request(self, client_socket: socket.socket, client_address: str) -> None:
+
+        # Receive data from the client
+        request = client_socket.recv(1024)  # size of the buffer in bytes
+        # Parse the request
+        stream = request.decode()
+        parsed_stream = Request.from_socket(stream, client_socket)
+
+        path = parsed_stream.path
+        protocol = parsed_stream.protocol
+        request_method = parsed_stream.method.upper()
+
+        if request_method == "GET":
+            status_code = self.handle_get_request(client_socket, path)
+        else:
+            status_code = 400
+
+            client_socket.sendall(BaseServer.BAD_REQUEST_RESPONSE)
+
+        readable_time = time.strftime("%T")
+        log = f'{client_address[0]} - - [{readable_time}] "{request_method} {path} {protocol}" {status_code}'
+        # Log request infos
+        logger.info(log)
+        print(log)
+
+    def handle_get_request(self, client_socket: socket.socket, path: str):
+        if path == "/":
+            # Default response with welcome.html
+            client_socket.sendall(self.response.encode())
+            status_code = 200
+
+        else:
+            # Serve static file
+            url_to_path = path.replace("/", BaseServer.SEP)[
+                1:
+            ]  # getting rid of first /
+
+            status_code = self.serve_static_file(client_socket, url_to_path)
+
+        return status_code
+
     @staticmethod
-    def serve_static_file(client_socket, file_path: str) -> None:
+    def serve_static_file(client_socket: socket.socket, file_path: str) -> int:
 
         # Get the file's MIME type
         content_type = mimetypes.guess_type(file_path)[0]
@@ -96,42 +152,3 @@ class BaseServer:
         else:
             client_socket.sendall(BaseServer.NOT_FOUND_RESPONSE)
             return 404
-
-    def dispatch_request(self, client_socket, client_address):
-
-        # Receive data from the client
-        request = client_socket.recv(1024)  # size of the buffer in bytes
-        # Parse the request
-        stream = request.decode()
-        parsed_stream = Request.from_socket(stream, client_socket)
-
-        path = parsed_stream.path
-        protocol = parsed_stream.protocol
-        request_method = parsed_stream.method.upper()
-
-        if request_method == "GET":
-            status_code = self.handle_get_request(path, client_socket)
-        else:
-            status_code = 400
-
-            client_socket.sendall(BaseServer.BAD_REQUEST_RESPONSE)
-
-        readable_time = time.strftime("%T")
-        log = f'{client_address[0]} - - [{readable_time}] "{request_method} {path} {protocol}" {status_code}'
-        # Log request infos
-        logger.info(log)
-        print(log)
-
-    def handle_get_request(self, path, client_socket):
-        if path == "/":
-            # Default response with welcome.html
-            client_socket.sendall(self.response.encode())
-            status_code = 200
-
-        else:
-            # Serve static file
-            url_to_path = path.replace("/", self.sep)[1:]  # getting rid of first /
-
-            status_code = self.serve_static_file(client_socket, url_to_path)
-
-        return status_code

@@ -1,6 +1,7 @@
 import logging
 import os
 
+# Creating a logger object and make it available inside the whole project
 current_dir = os.path.dirname(__file__)
 
 logging.basicConfig(

@@ -1,5 +1,4 @@
 from typing import NamedTuple, Mapping
-from socket import socket
 
 
 class Request(NamedTuple):
@@ -12,16 +11,20 @@ class Request(NamedTuple):
 
     @classmethod
     def from_socket(cls: type, request: "Request", client_socket) -> "Request":
-        """Read and parse the request from a socket object.
+        """
+        Read and parse the request from a socket object.
 
         We extract individually method, path and then other parameters
 
+        We return a Request object with the attributes listed above.
+
         Raises:
-          ValueError: When the request cannot be parsed.
+          ValueError: When the request cannot be parsed and returns error_response content (server error)
         """
 
         try:
             fields: list = request.split("\r\n")
+
             # Extract method, protocol and path
             main_infos = fields[0].split(" ")
             method: str = main_infos[0].strip()
