@@ -121,21 +121,14 @@ class BaseServer:
         if path == "/":
             # Default response with welcome.html
             client_socket.sendall(self.response.encode())
+            status_code = 200
 
         else:
             # Serve static file
             url_to_path = path.replace("/", self.sep)[1:]  # getting rid of first /
 
-            if not path.startswith("/static"):
-                # Serve index.html
-                index_path = os.path.join(base_dir, url_to_path, "index.html")
-                self.project_folder = url_to_path
+            self.project_folder = url_to_path
 
-                status_code = self.serve_static_file(client_socket, index_path)
+            status_code = self.serve_static_file(client_socket, url_to_path)
 
-            else:
-                # Add project folder to path
-                file_path = os.path.join(base_dir, self.project_folder, url_to_path)
-                status_code = self.serve_static_file(client_socket, file_path)
-
-            return status_code
+        return status_code
