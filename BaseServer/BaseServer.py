@@ -118,12 +118,14 @@ class BaseServer:
             client_socket.sendall(BaseServer._BAD_REQUEST_RESPONSE)
             client_socket.close()
 
-        if request_method == "GET":
-            status_code = BaseServer.handle_get_request(client_socket, path)
-        else:
+        # Serving only GET requests
+        if request_method != "GET":
             status_code = 405
-
             client_socket.sendall(BaseServer._METHOD_NOT_ALLOWED_RESPONSE)
+            client_socket.close()
+            return
+
+        status_code = BaseServer.handle_get_request(client_socket, path)
 
         readable_time = time.strftime("%T")
         log = f'{client_address[0]} - - [{readable_time}] "{request_method} {path} {protocol}" {status_code}'
