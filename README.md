@@ -59,34 +59,17 @@ MinimalistWebServer/your_project/
                 <pre>server = MinimalistWebServer(port=8000)</pre>
             <li>
 
-            <li>
-                Now the server is running, just access the URL displayed in your terminal (localhost
-                address + port number).<br> You should see this welcome page, unless you replaced default.html
-                with your own.
-            </li>
+Now the server is running, just access the URL displayed in your terminal (localhost
+address + port number).<br> You should see this welcome page, unless you replaced default.html
+with your own.
+            
 
-            <li><b>You need to mention your html file in the path, otherwise the server won't find
-                    it. For example:</b><br>
-                <pre>http://127.0.0.1/your_project/index.html</pre>
-            </li>
-            <li>That's it, you should be able to see your html file and all the linked static files will be
-                served as well.</li>
+You need to mention your html file in the path, otherwise the server won't find
+it. For example:
+<pre>http://127.0.0.1/your_project/index.html</pre>
+That's it, you should be able to see your html file and all the linked static files will be
+served as well.
 
-        </ul>
-  </div>
+### Note for Linux users
 
-    <div class="section_header">
-        Note for Linux users
-    </div>
-
-    <div class="content_section_text">
-        <p>
-            By default, Linux does not allow access through the web browser to
-            <em>any</em> file apart of those located in <tt>/var/www</tt>,
-            <a href="http://httpd.apache.org/docs/2.4/mod/mod_userdir.html">public_html</a>
-            directories (when enabled) and <tt>/usr/share</tt> (for web
-            applications). If your site is using a web document root
-            located elsewhere you may need to modify your files permissions
-            accordingly.
-        </p>
-    </div>
+By default, Linux does not allow access through the web browser to any file apart of those located in <tt>/var/www</tt>, <a href="http://httpd.apache.org/docs/2.4/mod/mod_userdir.html">public_html</a> directories (when enabled) and <tt>/usr/share</tt> (for web applications). If your site is using a web document root located elsewhere you may need to modify your files permissions accordingly.
