@@ -26,7 +26,7 @@ class BaseServer:
 
         dispatch_request(client_socket: socket.socket, client_address: str) => parse request and verifies method. Calls
                                                                                handle_get_request() for GET or returns
-                                                                               _BAD_REQUEST_RESPONSE.
+                                                                               _METHOD_NOT_ALLOWED_RESPONSE.
                                                                                Also log request data.
 
         handle_get_request(client_socket: socket.socket, path: str) => called by dispatch_request(). Serves default
@@ -40,9 +40,10 @@ class BaseServer:
 
     # Responses
     _DEFAULT_RESPONSE = None  # computed inside __init__()
-    _BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}""".encode()
+    _BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'bad request'}""".encode()
     _NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found".encode()
     _ERROR_RESPONSE = """HTTP/1.1 500 SERVER ERROR\r\nContent-Type: application/json\r\n\r\n{'status': 500, 'message': 'internal server error'}""".encode()
+    _METHOD_NOT_ALLOWED_RESPONSE = """HTTP/1.1 405 NOT ALLOWED\r\nContent-Type: application/json\r\n\r\n{'status': 405, 'message': 'wrong request method'}""".encode()
 
     _SEP = os.sep
 
@@ -120,9 +121,9 @@ class BaseServer:
         if request_method == "GET":
             status_code = BaseServer.handle_get_request(client_socket, path)
         else:
-            status_code = 400
+            status_code = 405
 
-            client_socket.sendall(BaseServer._BAD_REQUEST_RESPONSE)
+            client_socket.sendall(BaseServer._METHOD_NOT_ALLOWED_RESPONSE)
 
         readable_time = time.strftime("%T")
         log = f'{client_address[0]} - - [{readable_time}] "{request_method} {path} {protocol}" {status_code}'
