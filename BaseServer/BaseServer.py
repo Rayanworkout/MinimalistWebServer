@@ -71,7 +71,7 @@ class BaseServer:
 
             # Listen for incoming connections
             self.server_socket.listen(10)  # Allow up to 10 queued connections
-            print(f"\n> Server listening on http://{self.HOST}:{self.PORT}")
+            print(f"\n> Server listening on http://{self.HOST}:{self.PORT}\n")
         except OSError as e:
             print(f"Could not launch server: {e}")
 
