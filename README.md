@@ -23,6 +23,7 @@ This project serves as a stepping stone to comprehend the workings of sophistica
 - [x] Documentation
 - [ ] Multi-threaded
 - [ ] HTTPS support
+- [ ] Unit Testing
 
 
 ## Usage

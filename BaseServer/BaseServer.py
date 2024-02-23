@@ -42,6 +42,7 @@ class BaseServer:
     _DEFAULT_RESPONSE = None  # computed inside __init__()
     _BAD_REQUEST_RESPONSE = """HTTP/1.1 400 BAD REQUEST\r\nContent-Type: application/json\r\n\r\n{'status': 400, 'message': 'wrong request method'}""".encode()
     _NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found".encode()
+    _ERROR_RESPONSE = """HTTP/1.1 500 SERVER ERROR\r\nContent-Type: application/json\r\n\r\n{'status': 500, 'message': 'internal server error'}""".encode()
 
     _SEP = os.sep
 
@@ -106,9 +107,14 @@ class BaseServer:
         stream = request.decode()
         parsed_stream = Request.from_socket(stream, client_socket)
 
-        path = parsed_stream.path
-        protocol = parsed_stream.protocol
-        request_method = parsed_stream.method.upper()
+        try:
+            path = parsed_stream.path
+            protocol = parsed_stream.protocol
+            request_method = parsed_stream.method.upper()
+
+        except AttributeError:
+            # Request is malformed or hasn't been parsed correctly
+            client_socket.sendall(BaseServer._BAD_REQUEST_RESPONSE)
 
         if request_method == "GET":
             status_code = BaseServer.handle_get_request(client_socket, path)

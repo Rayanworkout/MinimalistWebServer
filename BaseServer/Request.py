@@ -7,7 +7,7 @@ class Request(NamedTuple):
     path: str
     headers: Mapping[str, str]
 
-    _ERROR_RESPONSE = """HTTP/1.1 500 SERVER ERROR\r\nContent-Type: application/json\r\n\r\n{'status': 500, 'message': 'internal server error'}"""
+    _ERROR_RESPONSE = """HTTP/1.1 500 SERVER ERROR\r\nContent-Type: application/json\r\n\r\n{'status': 500, 'message': 'internal server error'}""".encode()
 
     @classmethod
     def from_socket(cls, request: "Request", client_socket) -> "Request":
@@ -48,4 +48,4 @@ class Request(NamedTuple):
             print(
                 f"An error occured: {e} Could not parse the following request:\n\n{request}"
             )
-            client_socket.sendall(cls._ERROR_RESPONSE.encode())
+            client_socket.sendall(cls._ERROR_RESPONSE)
