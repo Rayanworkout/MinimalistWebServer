@@ -25,7 +25,9 @@ _You need python and git installed on your machine to run this program._
 
 
 First, clone this repository:
-<pre>git clone https://github.com/Rayanworkout/MinimalistWebServer</pre>
+```bash
+git clone https://github.com/Rayanworkout/MinimalistWebServer
+```
 
 <p>
     This server is intended to serve your static files. Simply create a project folder along
@@ -49,18 +51,24 @@ MinimalistWebServer/your_project/
                 |         -- js/
                 |              index.js
   </pre>
-        <ul>
-            <li>
-                When your project folder is ready, you can run the server with:<br>
-                <pre>python3 MinimalistWebServer.py</pre>
-                or under Windows:
-                <pre>python MinimalistWebServer.py</pre>
-                The server listens on port 8080 by default, but you can mention another port when creating the
-                server instance. The port number must be of type int. <br>
-                Example:<br>
-                <pre>server = MinimalistWebServer(port=8000)</pre>
-            <li>
 
+When your project folder is ready, you can run the server with:
+
+```bash
+python3 MinimalistWebServer.py
+```
+
+or under Windows:
+```bash
+python MinimalistWebServer.py
+```
+The server listens on port 8080 by default, but you can mention another port when creating the
+server instance. The port number must be of type int.
+
+Example:
+```bash
+server = MinimalistWebServer(port=8000)
+```
 Now the server is running, just access the URL displayed in your terminal (localhost
 address + port number).<br> You should see this welcome page, unless you replaced default.html
 with your own.
@@ -68,7 +76,9 @@ with your own.
 
 You need to mention your html file in the path, otherwise the server won't find
 it. For example:
-<pre>http://127.0.0.1/your_project/index.html</pre>
+```bash
+http://127.0.0.1/your_project/index.html
+```
 That's it, you should be able to see your html file and all the linked static files will be
 served as well.
 
