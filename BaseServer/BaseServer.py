@@ -31,11 +31,16 @@ class BaseServer:
         # Define the host and port
         self.HOST: str = host
         self.PORT: int = port
-        self.project_folder = ""
         self.sep = os.sep
 
         current_dir = os.path.dirname(__file__)
-        default_html_path = os.path.join(current_dir, "welcome.html")
+        default_html_path = os.path.join(current_dir, "default.html")
+
+        # Check if port is an int
+        try:
+            self.PORT = int(self.PORT)
+        except ValueError:
+            raise ValueError("Port number must be an integer")
 
         try:
             # Read the content of the HTML file
@@ -92,7 +97,7 @@ class BaseServer:
             client_socket.sendall(BaseServer.NOT_FOUND_RESPONSE)
             return 404
 
-    def dispatch_request(self, client_socket, client_address, base_dir):
+    def dispatch_request(self, client_socket, client_address):
 
         # Receive data from the client
         request = client_socket.recv(1024)  # size of the buffer in bytes
@@ -105,7 +110,7 @@ class BaseServer:
         request_method = parsed_stream.method.upper()
 
         if request_method == "GET":
-            status_code = self.handle_get_request(path, client_socket, base_dir)
+            status_code = self.handle_get_request(path, client_socket)
         else:
             status_code = 400
 
@@ -117,7 +122,7 @@ class BaseServer:
         logger.info(log)
         print(log)
 
-    def handle_get_request(self, path, client_socket, base_dir):
+    def handle_get_request(self, path, client_socket):
         if path == "/":
             # Default response with welcome.html
             client_socket.sendall(self.response.encode())
@@ -126,8 +131,6 @@ class BaseServer:
         else:
             # Serve static file
             url_to_path = path.replace("/", self.sep)[1:]  # getting rid of first /
-
-            self.project_folder = url_to_path
 
             status_code = self.serve_static_file(client_socket, url_to_path)
 

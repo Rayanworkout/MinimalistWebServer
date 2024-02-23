@@ -1,4 +1,3 @@
-import os
 from BaseServer.BaseServer import BaseServer
 from BaseServer.logger import logger
 
@@ -21,14 +20,13 @@ class MinimalistWebServer(BaseServer):
 
         try:
             logger.info("Starting server")
-            base_dir = os.path.dirname(__file__)
 
             # Accept incoming connections
             while True:
                 client_socket, client_address = self.server_socket.accept()
 
                 try:
-                    self.dispatch_request(client_socket, client_address, base_dir)
+                    self.dispatch_request(client_socket, client_address)
 
                 except Exception as e:
                     logger.error(f"An error occured while handling the request: {e}")
@@ -47,5 +45,5 @@ class MinimalistWebServer(BaseServer):
 
 
 if __name__ == "__main__":
-    server = MinimalistWebServer(port=8000)
+    server = MinimalistWebServer()
     server.listen_forever()
