@@ -21,9 +21,9 @@ This project serves as a stepping stone to comprehend the workings of sophistica
 - [x] Logging
 - [x] Error handling
 - [x] Documentation
+- [x] Unit Testing
 - [ ] Multi-threaded
 - [ ] HTTPS support
-- [ ] Unit Testing
 
 
 ## Usage
