@@ -183,6 +183,6 @@ class BaseServer:
             client_socket.sendall(BaseServer._NOT_FOUND_RESPONSE)
             return 404
 
-    @classmethod
-    def a():
-        pass
+    def stop(self) -> None:
+        print("closing")
+        self.server_socket.close()
