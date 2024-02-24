@@ -49,7 +49,7 @@ or under Windows:
 ```bash
 python MinimalistServer.py
 ```
-The server listens on localhost:8080 by default, but you can specify another host / host when creating the
+The server listens on localhost:8080 by default, but you can specify another host / port when creating the
 server instance or at runtime. The port number must be of type int, and host number of type string.
 
 At runtime:
