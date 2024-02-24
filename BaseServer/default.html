@@ -229,21 +229,27 @@ MinimalistWebServer/your_project/
                         <pre>python3 MinimalistWebServer.py</pre>
                         or under Windows:
                         <pre>python MinimalistWebServer.py</pre>
-                        The server listens on port 8080 by default, but you can mention another port when creating the
-                        server instance. The port number must be of type <b>int.</b>. <br>
-                        Example:
-                        <pre>server = MinimalistWebServer(port=8000)</pre>
+                        The server listens on localhost:8080 by default, but you can mention another host / port when
+                        creating the
+                        server instance <b>or at runtime</b>. The port number must be of type <b>int.</b> and host of
+                        type <b>str</b>. <br><br>
+                        At runtime:
+                        <pre>python3 MinimalistServer.py --port 8000 --host localhost</pre>
+
+                        or at server creation, at the end of
+                        <tt>MinimalistServer.py</tt><br>
+                        <pre>server = MinimalistWebServer(port=8000, host="localhost")</pre>
                     </li>
 
                     <li>
-                        Now the server is running, just access the URL displayed in your terminal (localhost
+                        Now the server is running, just access the URL displayed in your terminal (host
                         address + port number).<br> You should see this welcome page, unless you replaced default.html
                         with your own.
                     </li>
 
                     <li><b>You need to mention your html file in the path, otherwise the server won't find
                             it. For example:</b><br>
-                        <pre>http://127.0.0.1/your_project/index.html</pre>
+                        <pre>http://host:port/your_project/index.html</pre>
                     </li>
                     <li>That's it, you should be able to see your html file and all the linked static files will be
                         served as well.</li>

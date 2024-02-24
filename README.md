@@ -49,22 +49,21 @@ or under Windows:
 ```bash
 python MinimalistServer.py
 ```
-The server listens on port 8080 by default, but you can specify another port when creating the
-server instance or at runtime. The port number must be of type int.
+The server listens on localhost:8080 by default, but you can specify another host / host when creating the
+server instance or at runtime. The port number must be of type int, and host number of type string.
 
 At runtime:
 
 ```bash
-python3 MinimalistServer.py --port 8000
+python3 MinimalistServer.py --port 8000 --host localhost
 ```
 
 or at server creation, at the end of ```MinimalistServer.py```:
 
-Example:
 ```bash
-server = MinimalistWebServer(port=8000)
+server = MinimalistWebServer(port=8000, host='localhost')
 ```
-Now the server is running, just access the URL displayed in your terminal (localhost
+Now the server is running, just access the URL displayed in your terminal (host
 address + port number).<br> You should see the welcome page, unless you replaced default.html
 with your own.
 
