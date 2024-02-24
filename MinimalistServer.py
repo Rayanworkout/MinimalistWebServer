@@ -48,10 +48,17 @@ class MinimalistWebServer(BaseServer):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Minimalist Web Server")
+    # Port
     parser.add_argument(
         "--port", type=int, default=8080, help="Port number for the server"
     )
+
+    # Host
+    parser.add_argument(
+        "--host", type=str, default="127.0.0.1", help="Host address for the server"
+    )
+
     args = parser.parse_args()
 
-    server = MinimalistWebServer(port=args.port)
+    server = MinimalistWebServer(port=args.port, host=args.host)
     server.listen_forever()
