@@ -6,8 +6,10 @@ from BaseServer.logger import logger
 
 class MinimalistWebServer(BaseServer):
 
-    def __init__(self, host="127.0.0.1", port=8080) -> None:
-        super().__init__(host, port)
+    def __init__(
+        self, host: str = "127.0.0.1", port: int = 8080, https: bool = False
+    ) -> None:
+        super().__init__(host, port, https)
 
     def listen_forever(self) -> None:
         """
@@ -60,5 +62,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    server = MinimalistWebServer(port=args.port, host=args.host)
+    server = MinimalistWebServer(port=args.port, host=args.host, https=True)
     server.listen_forever()

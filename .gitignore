@@ -2,3 +2,5 @@
 example_project/
 __pycache__/
 *.log
+*crt
+*.key

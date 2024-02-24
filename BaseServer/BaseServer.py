@@ -1,7 +1,8 @@
 import mimetypes
 import os
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import time
+
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 
 from .logger import logger
 from .Request import Request
@@ -52,7 +53,7 @@ class BaseServer:
     _CURRENT_DIR = os.path.dirname(__file__)
     _DEFAULT_HTML_PATH = os.path.join(_CURRENT_DIR, "default.html")
 
-    def __init__(self, host: str, port: int) -> None:
+    def __init__(self, host: str, port: int, https: bool) -> None:
 
         # Define the host and port
         self.HOST = host
@@ -63,6 +64,18 @@ class BaseServer:
             self.PORT = int(self.PORT)
         except ValueError:
             raise ValueError("Port number must be an integer")
+
+        # Check if port is in range
+        if not 0 <= self.PORT <= 65535:
+            raise ValueError("Port number must be in range 0-65535")
+
+        # Check if host is a string
+        if not isinstance(self.HOST, str):
+            raise ValueError("Host must be a string")
+
+        # Check if host is a valid IP address
+        if not self.HOST.replace(".", "").isdigit():
+            raise ValueError("Host must be a valid IP address")
 
         try:
             # Read the content of the HTML file if not cached
@@ -92,6 +105,7 @@ class BaseServer:
 
             # Listen for incoming connections
             self.server_socket.listen(10)  # Allow up to 10 queued connections
+
             print(f"\n> Server listening on http://{self.HOST}:{self.PORT}\n")
         except Exception as e:
             raise Exception(f"Could not launch server: {e}")
@@ -168,3 +182,7 @@ class BaseServer:
         else:
             client_socket.sendall(BaseServer._NOT_FOUND_RESPONSE)
             return 404
+
+    @classmethod
+    def a():
+        pass
