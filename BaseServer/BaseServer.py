@@ -53,7 +53,7 @@ class BaseServer:
     _CURRENT_DIR = os.path.dirname(__file__)
     _DEFAULT_HTML_PATH = os.path.join(_CURRENT_DIR, "default.html")
 
-    def __init__(self, host: str, port: int, https: bool) -> None:
+    def __init__(self, host: str, port: int) -> None:
 
         # Define the host and port
         self.HOST = host
