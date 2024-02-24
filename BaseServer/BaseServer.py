@@ -1,6 +1,6 @@
 import mimetypes
 import os
-import socket
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import time
 
 from .logger import logger
@@ -24,17 +24,16 @@ class BaseServer:
 
     Methods:
 
-        dispatch_request(client_socket: socket.socket, client_address: str) => parse request and verifies method. Calls
+        dispatch_request(client_socket: socket, client_address: str) => parse request and verifies method. Calls
                                                                                handle_get_request() for GET or returns
                                                                                _METHOD_NOT_ALLOWED_RESPONSE.
                                                                                Also log request data.
 
-        handle_get_request(client_socket: socket.socket, path: str) => called by dispatch_request(). Serves default
+        handle_get_request(client_socket: socket, path: str) => called by dispatch_request(). Serves default
                                                                        HTML file at root URL, and calls serve_static_file()
-                                                                       for other URLs.
+                                                                       for othe
 
-
-        serve_static_file(client_socket: socket.socket, file_path: str) => returns an encoded response containing the
+        serve_static_file(client_socket: socket, file_path: str) => returns an encoded response containing the
                                                                            content of the file or _NOT_FOUND_RESPONSE.
     """
 
@@ -84,10 +83,10 @@ class BaseServer:
 
         try:
             # Init the socket server
-            self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.server_socket = socket(AF_INET, SOCK_STREAM)
 
             # Allow reusing the same address
-            self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             # Bind the socket to the host and port
             self.server_socket.bind((self.HOST, self.PORT))
 
@@ -98,9 +97,7 @@ class BaseServer:
             raise Exception(f"Could not launch server: {e}")
 
     @classmethod
-    def dispatch_request(
-        cls, client_socket: socket.socket, client_address: str
-    ) -> None:
+    def dispatch_request(cls, client_socket: socket, client_address: str) -> None:
 
         # Receive data from the client
         request = client_socket.recv(1024)  # size of the buffer in bytes
@@ -134,7 +131,7 @@ class BaseServer:
         print(log)
 
     @classmethod
-    def handle_get_request(cls, client_socket: socket.socket, path: str):
+    def handle_get_request(cls, client_socket: socket, path: str):
         if path == "/":
             # Default response with welcome.html
             client_socket.sendall(BaseServer._DEFAULT_RESPONSE.encode())
@@ -151,7 +148,7 @@ class BaseServer:
         return status_code
 
     @classmethod
-    def serve_static_file(cls, client_socket: socket.socket, file_path: str) -> int:
+    def serve_static_file(cls, client_socket: socket, file_path: str) -> int:
 
         # Get the file's MIME type
         content_type = mimetypes.guess_type(file_path)[0]
