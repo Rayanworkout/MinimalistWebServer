@@ -1,6 +1,6 @@
 import argparse
 
-from BaseServer.BaseServer import BaseServer
+from BaseServer.base_server import BaseServer
 from BaseServer.logger import logger
 
 

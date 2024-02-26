@@ -3,8 +3,8 @@ import time
 import pytest
 import threading
 
-from MinimalistServer import MinimalistWebServer
-from BaseServer.BaseServer import BaseServer
+from minimalistServer import MinimalistWebServer
+from BaseServer.base_server import BaseServer
 
 
 @pytest.fixture(scope="module")

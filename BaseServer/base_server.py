@@ -5,7 +5,7 @@ import time
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 
 from .logger import logger
-from .Request import Request
+from .request import Request
 
 
 class BaseServer:
