@@ -40,12 +40,12 @@ cd MinimalistWebServer
 
 Then launch the server:
 ```bash
-python3 MinimalistServer.py
+python3 minimalist_server.py
 ```
 
 or under Windows:
 ```bash
-python MinimalistServer.py
+python minimalist_server.py
 ```
 The server listens on localhost:8080 by default, but you can specify another host / port when creating the
 server instance or at runtime. The port number must be of type int, and host number of type string.
@@ -53,10 +53,10 @@ server instance or at runtime. The port number must be of type int, and host num
 At runtime:
 
 ```bash
-python3 MinimalistServer.py --port 8000 --host localhost
+python3 minimalist_server.py --port 8000 --host localhost
 ```
 
-or at server creation, at the end of ```MinimalistServer.py```:
+or at server creation, at the end of ```minimalist_server.py```:
 
 ```bash
 server = MinimalistWebServer(port=8000, host='localhost')
@@ -67,7 +67,7 @@ with your own.
 
 
 This server is intended to serve static files. To do that, simply create a project folder along
-```MinimalistServer.py```, launch the server and access the URL.
+```minimalist_server.py```, launch the server and access the URL.
 
 All libraries used are built-in inside Python 3; no external dependencies are needed.
 

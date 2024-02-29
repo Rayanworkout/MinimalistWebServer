@@ -3,7 +3,7 @@ import time
 import pytest
 import threading
 
-from minimalistServer import MinimalistWebServer
+from minimalist_server import MinimalistWebServer
 from BaseServer.base_server import BaseServer
 
 
