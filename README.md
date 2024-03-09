@@ -44,6 +44,7 @@ python3 minimalist_server.py
 ```
 
 or under Windows:
+
 ```bash
 python minimalist_server.py
 ```
