@@ -62,7 +62,7 @@ or at server creation, at the end of ```minimalist_server.py```:
 server = MinimalistWebServer(port=8000, host='localhost')
 ```
 Now the server is running, just access the URL displayed in your terminal (host
-address + port number).<br> You should see the welcome page, unless you replaced default.html
+address + port number).<br>You should see the welcome page, unless you replaced default.html
 with your own.
 
 
